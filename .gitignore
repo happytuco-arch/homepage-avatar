@@ -1,0 +1,18 @@
+# 열쇠 — ElevenLabs 키는 메인 프로세스 .env 에만 둔다
+.env
+.env.*
+!.env.example
+
+# 의존성·빌드 결과물
+node_modules/
+dist/
+out/
+release/
+
+# 생성한 음성 캐시 (크레딧 절약용, 저장소에는 올리지 않음)
+audio-cache/
+
+# 운영체제·편집기
+.DS_Store
+Thumbs.db
+.vscode/
