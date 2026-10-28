@@ -20,7 +20,7 @@ html, body {
 
 body {
   display: grid;
-  grid-template-columns: 300px 1fr 280px;
+  grid-template-columns: 300px 1fr 280px; /* 오른쪽 칸은 아바타의 제자리(아바타 층이 그 위에 섬) */
   align-items: end;
   gap: 16px;
   padding: 0 0 14px 16px;
@@ -84,4 +84,4 @@ input {
   padding: 10px 16px;
 }
 
-.avatar-canvas { width: 280px; height: 300px; display: block; }
+

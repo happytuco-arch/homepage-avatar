@@ -9,7 +9,7 @@ const mask = (s) => String(s).replace(/sk[-_][A-Za-z0-9_-]{6,}/g, 'sk-***').slic
 const API = 'https://api.anthropic.com/v1/messages'
 const SCRIPT_TIMEOUT_MS = 240000
 const ANSWER_TIMEOUT_MS = 20000
-const SCRIPT_PROMPT_VERSION = 'v3' // 프롬프트를 고치면 올려서 캐시를 새로 만듭니다
+const SCRIPT_PROMPT_VERSION = 'v4' // 프롬프트를 고치면 올려서 캐시를 새로 만듭니다
 
 /** tool 을 주면 그 도구를 쓰게 해(이 모델은 강제 지정을 지원하지 않아 auto + 지시문) 입력(JSON 객체)을 돌려받고, 없으면 글을 돌려받습니다 */
 async function claude({ key, model, system, user, maxTokens, timeoutMs, tool }) {
@@ -77,6 +77,12 @@ const SCRIPT_SYSTEM = `너는 포트폴리오 발표 대본 작가다. 홈페이
 - 숫자는 한 줄에 하나만, 귀로 듣기 쉽게 반올림한다(예: 229,126개 → 약 23만 개). 퍼센트를 연달아 나열하지 않는다.
 - 항목 사이는 "그런데", "이 경험이 다음 작업으로 이어졌는데요" 같은 다리 문장으로 잇는다. 목록 나열 금지.
 - 인터뷰어는 청중이 궁금해할 만한 짧은 질문과 리액션("오, 23만 개요?")을 한다. 인터뷰어 줄은 30자 이내, 아바타 줄은 80자 이내.
+
+위트 규칙(분위기 풀기):
+- 대본 곳곳(5~7곳)에 청중이 피식 웃을 만한 가벼운 멘트를 넣는다. 인터뷰어와 아바타가 주고받는 티키타카로 만든다.
+- 소재: 아바타가 진짜 사람이 아니라 3D 아바타라는 점(정장은 입었는데 넥타이가 코드로 그려졌다, 직접 걸어 다니며 손가락으로 짚는다 등), 발표자가 직접 홈페이지를 넘기는 상황, AI와 일하다 생긴 일을 자기 고백처럼 말하기, 인터뷰어의 장난스러운 추임새.
+- 농담에서도 새로운 사실(겪지 않은 일화, 없는 수치)을 지어내지 않는다. 자료에 있는 사실을 비틀거나 상황 자체로 웃긴다.
+- 과하지 않게: 농담 한 줄 뒤에는 바로 본론으로 돌아온다. 비하·자극적인 표현은 쓰지 않는다.
 
 형식:
 - 장면 순서: intro(page null, 첫 줄 act "wave", 자기소개와 오늘 보여 줄 것 예고) → works(page "Works") → papers(page "Papers") → assignments(page "Assignments") → outro(page null, 오늘 이야기를 한 문장으로 묶고 질문을 청하는 마무리, 마지막 줄 act "bow").

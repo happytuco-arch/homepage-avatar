@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'sha256-c3e1nFpqkVdN44lz8PtI1BNSIQNYL1IXX51LJ3vhICM='; style-src 'self' 'unsafe-inline'" />
+  <title>Avatar</title>
+  <!-- 아래 importmap 을 고치면 CSP 의 sha256 값도 바꿔야 합니다(콘솔 오류에 새 값이 나옴) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "../../node_modules/three/build/three.module.js",
+        "three/addons/": "./vendor/three-addons/",
+        "@pixiv/three-vrm": "../../node_modules/@pixiv/three-vrm/lib/three-vrm.module.js"
+      }
+    }
+  </script>
+  <style>
+    html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; }
+    canvas { width: 100%; height: 100%; display: block; }
+  </style>
+</head>
+<body>
+  <canvas id="avatar"></canvas>
+  <script type="module" src="avatar-view.js"></script>
+</body>
+</html>

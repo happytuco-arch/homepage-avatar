@@ -9,6 +9,9 @@ const WALK_START_X = 2.6
 const BOW_ANGLE = Math.PI / 2 // 90도 인사
 const BOW_SECONDS = 1.1
 const BOW_HOLD_SECONDS = 1.2
+const POINT_TURN = 0.45 // 짚을 때 몸을 트는 각도
+const POINT_ARM_SIDE = Math.PI / 2 // 옆으로 팔을 수평으로 뻗기
+const POINT_ARM_UP = 2.6 // 위(메뉴)를 가리키기
 const BOW_TURN = 0.7 // 인사할 때 몸을 돌리는 각도(정면에서는 숙인 각도가 안 보임)
 const MOUTH_SHAPES = ['aa', 'ih', 'ou', 'ee', 'oh']
 
@@ -121,6 +124,8 @@ export async function createAvatar(canvas) {
 
   // ── 동작 상태 ──
   let act = { name: 'hidden', t: 0, resolve: null }
+  let walkDir = 0 // -1 왼쪽, 1 오른쪽으로 걷는 중, 0 멈춤
+  let walkT = 0
   let mouthShape = null
   let mouthOpen = 0
   let talking = false
@@ -149,7 +154,26 @@ export async function createAvatar(canvas) {
     act.t += dt
     const t = act.t
     pose.legSwing = 0; pose.armSwing = 0; pose.armL = 0; pose.armR = 0; pose.nod = 0
+    // 창(아바타 층)이 화면 위를 옮겨 다니는 동안: 그 방향을 보고 걷습니다
+    if (walkDir) {
+      walkT += dt
+      pose.yaw += ((walkDir > 0 ? Math.PI / 2 : -Math.PI / 2) - pose.yaw) * Math.min(1, dt * 10)
+      pose.bow = 0
+      pose.legSwing = Math.sin(walkT * 9) * 0.5
+      pose.armSwing = pose.legSwing * 0.8
+      return
+    }
     switch (act.name) {
+      case 'pointSide': {
+        // 게시글 쪽으로 몸을 살짝 틀고 팔을 뻗어 짚습니다(다른 동작이 올 때까지 유지)
+        const k = Math.min(1, t * 4)
+        const turn = act.side === 'left' ? -POINT_TURN : act.side === 'right' ? POINT_TURN : 0
+        pose.yaw += (turn - pose.yaw) * Math.min(1, dt * 8)
+        if (act.side === 'left') pose.armL = POINT_ARM_SIDE * k
+        else if (act.side === 'right') pose.armR = POINT_ARM_SIDE * k
+        else pose.armL = POINT_ARM_UP * k
+        break
+      }
       case 'walkIn': {
         const k = Math.min(1, t / WALK_IN_SECONDS)
         pose.x = WALK_START_X * (1 - k)
@@ -174,7 +198,7 @@ export async function createAvatar(canvas) {
         break
       }
       default:
-        pose.yaw = 0
+        pose.yaw += (0 - pose.yaw) * Math.min(1, dt * 8) // 정면으로 천천히 돌아섭니다
         pose.bow = 0
     }
     if (talking) pose.nod = Math.sin(performance.now() / 260) * 0.035
@@ -234,6 +258,11 @@ export async function createAvatar(canvas) {
   return {
     kind: body ? 'vrm' : 'figure',
     play,
+    setWalk(dir) { walkDir = dir; root.visible = true },
+    point(side) {
+      if (act.resolve) act.resolve()
+      act = side === 'none' ? { name: 'idle', t: 0, resolve: null } : { name: 'pointSide', t: 0, resolve: null, side }
+    },
     setMouth(shape) { mouthShape = shape || null },
     setTalking(on) { talking = on; if (!on) mouthShape = null },
   }

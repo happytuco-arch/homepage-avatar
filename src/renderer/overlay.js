@@ -1,5 +1,4 @@
 // 투어 진행: 대본을 한 줄씩 말하고, 사이트를 넘기고, 끼어든 직접 질문에 답합니다.
-import { createAvatar } from './avatar3d.js'
 
 const $ = (id) => document.getElementById(id)
 const api = window.avatar
@@ -20,7 +19,18 @@ function mouthOf(ch) {
 }
 
 let tour = null
-let avatar = null
+// 아바타는 별도 층(창)에 있어, 몸짓은 메인을 거쳐 보냅니다. 입 모양은 바뀔 때만 보냅니다
+let lastMouth = null
+const avatar = {
+  play: (name) => api.body.act('play', name),
+  setTalking: (on) => api.body.send('setTalking', on),
+  setMouth(shape) {
+    shape = shape || null
+    if (shape === lastMouth) return
+    lastMouth = shape
+    api.body.send('setMouth', shape)
+  },
+}
 const run = {
   playing: false,
   paused: false,
@@ -165,8 +175,12 @@ async function answerQuestions() {
 
 async function playLine(line) {
   const tasks = []
-  if (line.who === 'avatar' && line.act && line.act !== 'bow') tasks.push(avatar.play(line.act))
-  if (line.focus) tasks.push(api.site.focus(line.focus.kind, line.focus.title))
+  // 게시글을 소개하는 줄: 화면을 그 글로 옮기고, 아바타가 옆으로 걸어가 손을 뻗어 짚습니다
+  if (line.focus) {
+    tasks.push(api.site.focus(line.focus.kind, line.focus.title).then((rect) => rect && api.body.goTo(rect)))
+  } else if (line.who === 'avatar' && line.act && line.act !== 'bow') {
+    tasks.push(avatar.play(line.act))
+  }
   if (line.act === 'bow') {
     await say(line.who, line.text)
     await avatar.play('bow')
@@ -179,6 +193,7 @@ async function playTour() {
   run.playing = true
   $('replay').hidden = true
   await api.site.top()
+  await api.body.home()
   await avatar.play('walkIn')
   let started = !tour.startScene
   for (const scene of tour.script.scenes) {
@@ -186,8 +201,11 @@ async function playTour() {
     started = true
     run.skip = false
     if (scene.page) {
-      avatar.play('point')
+      // 메뉴 아래로 걸어가 위를 가리킨 뒤, 손 모양 커서가 메뉴를 누릅니다
+      await api.body.goTo(await api.site.menuRect(scene.page), 'up')
       await api.site.menu(scene.page)
+    } else if (scene !== tour.script.scenes[0]) {
+      await api.body.home() // 마무리 인사는 제자리(오른쪽 아래)로 돌아와서
     }
     for (let i = 0; i < scene.lines.length && !run.skip; i++) {
       // 다음 줄 음성을 미리 받아 둡니다(대사 사이 끊김 줄이기)
@@ -195,7 +213,6 @@ async function playTour() {
       if (next && tour.modes.tts) fetchSpeech(next.who, next.text)
       await waitIfPaused()
       await playLine(scene.lines[i])
-      await api.site.clear()
       await answerQuestions()
       await sleep(LINE_GAP_MS)
     }
@@ -270,7 +287,6 @@ function bindMic() {
 }
 
 async function main() {
-  avatar = await createAvatar($('avatar'))
   speechSynthesis.getVoices() // 목록을 미리 깨웁니다(처음엔 비어 있을 수 있음)
   tour = await api.loadTour()
   setStatus(modeText())

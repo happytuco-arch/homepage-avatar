@@ -1,4 +1,4 @@
-// 앱 시작점. 창 하나에 두 겹: 아래는 실제 사이트, 위는 투명 아바타 띠.
+// 앱 시작점. 창 하나에 세 겹: 실제 사이트 · 투명 조작 띠(자막·버튼) · 사이트 위를 돌아다니는 아바타 층.
 const fs = require('fs')
 const path = require('path')
 const { app, BaseWindow, WebContentsView, ipcMain, session } = require('electron')
@@ -7,6 +7,7 @@ const { loadSiteData } = require('./siteData')
 const { getScript, answer } = require('./llm')
 const { synthesize, transcribe } = require('./voice')
 const { createSiteControl } = require('./site')
+const { createStage } = require('./stage')
 
 const WINDOW_W = 1280
 const WINDOW_H = 820
@@ -27,24 +28,43 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       autoplayPolicy: 'no-user-gesture-required',
+      backgroundThrottling: false,
     },
   })
   overlay.setBackgroundColor('#00000000')
   overlay.webContents.loadFile(path.join(__dirname, '..', 'renderer', 'overlay.html'))
 
+  // 아바타 층: 작은 투명 창. 무대(stage)가 이 창을 사이트 위로 옮겨 다니게 합니다
+  const avatarView = new WebContentsView({
+    // 창이 가려지거나 포커스가 없어도 동작 타이머(requestAnimationFrame)가 멈추지 않게
+    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, backgroundThrottling: false },
+  })
+  avatarView.setBackgroundColor('#00000000')
+  avatarView.webContents.loadFile(path.join(__dirname, '..', 'renderer', 'avatar.html'))
+  const stage = createStage(win, avatarView)
+
   win.contentView.addChildView(site)
   win.contentView.addChildView(overlay)
+  win.contentView.addChildView(avatarView) // 맨 위
 
   const layout = () => {
     const { width, height } = win.getContentBounds()
     site.setBounds({ x: 0, y: 0, width, height })
     overlay.setBounds({ x: 0, y: height - OVERLAY_H, width, height: OVERLAY_H })
+    stage.relayout()
   }
   layout()
   win.on('resize', layout)
 
+  const avatarReady = new Promise((resolve) => ipcMain.once('avatar:ready', resolve))
+  ipcMain.handle('avatar:act', async (_e, name, args) => { await avatarReady; return stage.command(name, args, true) })
+  ipcMain.on('avatar:send', (_e, name, args) => stage.command(name, args))
+  ipcMain.handle('avatar:goTo', (_e, rect, side) => stage.goTo(rect, side))
+  ipcMain.handle('avatar:home', () => stage.home())
+
   const control = createSiteControl(site.webContents)
   ipcMain.handle('site:menu', (_e, label) => control.menu(label))
+  ipcMain.handle('site:menuRect', (_e, label) => control.menuRect(label))
   ipcMain.handle('site:focus', (_e, kind, title) => control.focus(kind, title))
   ipcMain.handle('site:clear', () => control.clear())
   ipcMain.handle('site:top', () => control.top())
@@ -54,17 +74,18 @@ function createWindow() {
   }))
 
   if (process.env.AVATAR_DEVTOOLS) overlay.webContents.openDevTools({ mode: 'detach' })
+  avatarView.webContents.on('console-message', (e) => console.log('[avatar]', e.message))
   overlay.webContents.on('console-message', (e) => {
     console.log('[overlay]', e.message)
     if (process.env.AVATAR_LOG) fs.appendFileSync(process.env.AVATAR_LOG, e.message + '\n')
   })
-  if (process.env.AVATAR_SHOT) captureLoop(process.env.AVATAR_SHOT, site, overlay)
+  if (process.env.AVATAR_SHOT) captureLoop(process.env.AVATAR_SHOT, site, overlay, avatarView)
 }
 
 // 개발용: AVATAR_SHOT=폴더 를 주면 몇 초마다 두 겹을 캡처합니다(동작 확인용)
 const SHOT_EVERY_MS = Number(process.env.AVATAR_SHOT_MS) || 5000
 const SHOT_COUNT = 120
-function captureLoop(dir, site, overlay) {
+function captureLoop(dir, site, overlay, avatarView) {
   fs.mkdirSync(dir, { recursive: true })
   let n = 0
   const timer = setInterval(async () => {
@@ -72,6 +93,8 @@ function captureLoop(dir, site, overlay) {
     const tag = String(n).padStart(2, '0')
     fs.writeFileSync(path.join(dir, `${tag}-site.png`), (await site.webContents.capturePage()).toPNG())
     fs.writeFileSync(path.join(dir, `${tag}-overlay.png`), (await overlay.webContents.capturePage()).toPNG())
+    fs.writeFileSync(path.join(dir, `${tag}-bounds.txt`), JSON.stringify(avatarView.getBounds()))
+    fs.writeFileSync(path.join(dir, `${tag}-avatar.png`), (await avatarView.webContents.capturePage()).toPNG())
     if (n === 6) overlay.webContents.executeJavaScript(`console.log('LAYOUT', JSON.stringify([...document.querySelectorAll('.subtitle, .subtitle > *, body')].map(e => [e.className || e.tagName, Math.round(e.getBoundingClientRect().top), Math.round(e.getBoundingClientRect().height)])))`)
     // AVATAR_ASK=질문 을 주면 40초쯤에 직접 질문을 넣어 끼어들기를 확인합니다
     if (n === 8 && process.env.AVATAR_ASK) {

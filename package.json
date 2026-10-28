@@ -10,7 +10,9 @@
     "test": "node --test tests/core.test.cjs",
     "snapshot": "node scripts/snapshot.js",
     "dist": "electron-builder",
-    "bake": "node scripts/bake-script.js"
+    "bake": "node scripts/bake-script.js",
+    "script:md": "node scripts/script-md.js",
+    "script:apply": "node scripts/script-md.js apply"
   },
   "build": {
     "appId": "io.github.happytucoarch.homepageavatar",

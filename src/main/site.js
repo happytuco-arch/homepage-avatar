@@ -28,6 +28,11 @@ const INSTALL = `(() => {
     cur.style.transform = 'translate(' + (r.left + r.width / 2 - 12) + 'px,' + (r.top + r.height / 2 - 6) + 'px)'
     await wait(${CURSOR_MS})
   }
+  // 화면(창) 기준 위치. 아바타 층이 이 좌표로 걸어갑니다
+  function rectOf(el) {
+    const r = el.getBoundingClientRect()
+    return { x: r.left, y: r.top, width: r.width, height: r.height }
+  }
   function frame(el) {
     const r = el.getBoundingClientRect()
     Object.assign(box.style, { left: (r.left + scrollX - 8) + 'px', top: (r.top + scrollY - 8) + 'px',
@@ -53,8 +58,12 @@ const INSTALL = `(() => {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' })
       await wait(${SCROLL_SETTLE_MS})
       frame(el)
-      await moveTo(el)
-      return true
+      cur.style.opacity = 0 // 게시글은 아바타가 직접 걸어가 손으로 짚습니다
+      return rectOf(el)
+    },
+    menuRect(label) {
+      const el = [...document.querySelectorAll('.nav__link')].find((b) => norm(b.textContent) === label)
+      return el ? rectOf(el) : null
     },
     clear() { box.style.opacity = 0; cur.style.opacity = 0 },
     top() { box.style.opacity = 0; scrollTo({ top: 0, behavior: 'smooth' }) },
@@ -74,6 +83,7 @@ function createSiteControl(webContents) {
   }
   return {
     menu: (label) => run(`window.__avatar.menu(${JSON.stringify(label)})`),
+    menuRect: (label) => run(`window.__avatar.menuRect(${JSON.stringify(label)})`),
     focus: (kind, title) => run(`window.__avatar.focus(${JSON.stringify(kind)}, ${JSON.stringify(title)})`),
     clear: () => run('window.__avatar.clear()'),
     top: () => run('window.__avatar.top()'),
