@@ -12,6 +12,8 @@ contextBridge.exposeInMainWorld('avatar', {
     menu: (label) => ipcRenderer.invoke('site:menu', label),
     menuRect: (label) => ipcRenderer.invoke('site:menuRect', label),
     showVideo: (title, seconds) => ipcRenderer.invoke('site:showVideo', title, seconds),
+    openPost: (title) => ipcRenderer.invoke('site:openPost', title),
+    closePost: () => ipcRenderer.invoke('site:closePost'),
     focus: (kind, title) => ipcRenderer.invoke('site:focus', kind, title),
     clear: () => ipcRenderer.invoke('site:clear'),
     top: () => ipcRenderer.invoke('site:top'),

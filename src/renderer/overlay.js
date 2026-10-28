@@ -178,6 +178,7 @@ async function playLine(line) {
   const tasks = []
   // 게시글을 소개하는 줄: 화면을 그 글로 옮기고, 아바타가 옆으로 걸어가 손을 뻗어 짚습니다
   if (line.focus) {
+    await api.site.closePost() // 앞서 열어 둔 게시글이 있으면 닫고 목록으로
     tasks.push(api.site.focus(line.focus.kind, line.focus.title).then((rect) => rect && api.body.goTo(rect)))
   } else if (line.who === 'avatar' && line.act && line.act !== 'bow') {
     tasks.push(avatar.play(line.act))
@@ -188,6 +189,11 @@ async function playLine(line) {
     return
   }
   await Promise.all([say(line.who, line.text), ...tasks])
+  // 게시글 열어 읽기: 아바타는 비켜서고, 이어지는 대사 동안 글을 천천히 내려 보여 줍니다
+  if (line.focus?.open) {
+    await api.body.home()
+    await api.site.openPost(line.focus.title)
+  }
   // 영상 보여 주기: 아바타는 비켜서고, 카드를 눌러 영상을 잠깐 틀었다가 닫습니다
   if (line.video) {
     await api.body.home()
@@ -219,6 +225,7 @@ async function playTour() {
       if (next && tour.modes.tts) fetchSpeech(next.who, next.text)
       await waitIfPaused()
       await playLine(scene.lines[i])
+      if (i === scene.lines.length - 1 || run.skip) await api.site.closePost()
       await answerQuestions()
       await sleep(LINE_GAP_MS)
     }

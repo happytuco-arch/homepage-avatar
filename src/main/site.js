@@ -4,6 +4,9 @@
 const CURSOR_MS = 900 // 커서가 날아가는 시간
 const SCROLL_SETTLE_MS = 700 // 부드러운 스크롤이 멈출 때까지 기다리는 시간
 const VIDEO_MAX_SECONDS = 60 // 영상을 끝까지 틀 때의 상한
+const READ_PAUSE_MS = 1200 // 게시글을 연 뒤 제목을 보여 주는 시간
+const READ_SCROLL_PX = 1 // 읽어 내려가는 속도: READ_SCROLL_MS 마다 이만큼(약 60px/초)
+const READ_SCROLL_MS = 16
 const EMBED_SECONDS = 10 // 유튜브 같은 외부 영상은 끝을 알 수 없어 이만큼만 보여 줍니다
 
 // 페이지 안에서 한 번만 설치되는 도우미. window.__avatar 로 씁니다.
@@ -98,6 +101,39 @@ const INSTALL = `(() => {
       await wait(${SCROLL_SETTLE_MS})
       return true
     },
+    // 게시글을 눌러 열고, 대사가 이어지는 동안 천천히 아래로 내려 읽어 줍니다(closePost 까지)
+    async openPost(title) {
+      const t = norm(title)
+      const el = [...document.querySelectorAll('.post')].find((e) => norm(e.textContent).includes(t))
+      if (!el) return false
+      await moveTo(el)
+      cur.classList.remove('press'); void cur.offsetWidth; cur.classList.add('press')
+      box.style.opacity = 0
+      el.click()
+      await wait(900)
+      cur.style.opacity = 0
+      scrollTo({ top: 0 })
+      clearInterval(window.__avatarScroll)
+      await wait(${READ_PAUSE_MS})
+      // 사이트의 스크롤 스냅(mandatory)이 조금씩 내린 위치를 되돌리므로, 읽는 동안만 실행 중인 페이지에서 끕니다
+      const root = document.documentElement.style
+      root.scrollSnapType = 'none'
+      root.scrollBehavior = 'auto'
+      window.__avatarScroll = setInterval(() => scrollBy(0, ${READ_SCROLL_PX}), ${READ_SCROLL_MS})
+      return true
+    },
+    async closePost() {
+      if (!window.__avatarScroll) return false
+      clearInterval(window.__avatarScroll)
+      window.__avatarScroll = null
+      document.documentElement.style.scrollSnapType = ''
+      document.documentElement.style.scrollBehavior = ''
+      const back = document.querySelector('.article__back')
+      if (back) back.click()
+      else document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+      await wait(800)
+      return true
+    },
     menuRect(label) {
       const el = [...document.querySelectorAll('.nav__link')].find((b) => norm(b.textContent) === label)
       return el ? rectOf(el) : null
@@ -121,6 +157,8 @@ function createSiteControl(webContents) {
   }
   return {
     menu: (label) => run(`window.__avatar.menu(${JSON.stringify(label)})`),
+    openPost: (title) => run(`window.__avatar.openPost(${JSON.stringify(title)})`),
+    closePost: () => run('window.__avatar.closePost()'),
     showVideo: (title, seconds) => run(`window.__avatar.showVideo(${JSON.stringify(title)}, ${Number(seconds)})`, true),
     menuRect: (label) => run(`window.__avatar.menuRect(${JSON.stringify(label)})`),
     focus: (kind, title) => run(`window.__avatar.focus(${JSON.stringify(kind)}, ${JSON.stringify(title)})`),

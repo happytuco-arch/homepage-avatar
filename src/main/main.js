@@ -66,6 +66,8 @@ function createWindow() {
   ipcMain.handle('site:menu', (_e, label) => control.menu(label))
   ipcMain.handle('site:menuRect', (_e, label) => control.menuRect(label))
   ipcMain.handle('site:showVideo', (_e, title, seconds) => control.showVideo(title, seconds))
+  ipcMain.handle('site:openPost', (_e, title) => control.openPost(title))
+  ipcMain.handle('site:closePost', () => control.closePost())
   ipcMain.handle('site:focus', (_e, kind, title) => control.focus(kind, title))
   ipcMain.handle('site:clear', () => control.clear())
   ipcMain.handle('site:top', () => control.top())

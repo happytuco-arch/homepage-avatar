@@ -10,6 +10,8 @@ const FRAME_MS = 16
 const NAV_H = 72 // 사이트 위쪽 메뉴 띠 높이. 아바타는 이 아래로만 다닙니다
 const SHOULDER = 0.37 // 아바타 층 위에서부터 어깨(팔 뻗는 높이)까지의 비율
 const HOME_MARGIN = 10
+const WIDE_RATIO = 0.55 // 이보다 넓은 글은 "화면 폭 글"로 봅니다
+const TEXT_COLUMN_W = 760 // 화면 폭 글에서 실제 글자가 놓이는 폭
 
 function createStage(win, view) {
   let pos = null
@@ -76,6 +78,8 @@ function createStage(win, view) {
       target = { x: rect.x + rect.width / 2 - AV_W * 0.35, y: NAV_H }
       arm = 'up'
     } else {
+      // 논문·과제 목록처럼 화면 폭을 다 차지하는 글은 글자가 있는 왼쪽 부분만 기준으로 삼습니다
+      if (rect.width > width * WIDE_RATIO) rect = { ...rect, width: Math.min(rect.width, TEXT_COLUMN_W) }
       const roomRight = rect.x + rect.width + AV_W * 0.6 < width
       target = {
         x: roomRight ? rect.x + rect.width - AV_W * 0.25 : rect.x - AV_W * 0.75,
