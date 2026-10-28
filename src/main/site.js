@@ -3,6 +3,8 @@
 
 const CURSOR_MS = 900 // 커서가 날아가는 시간
 const SCROLL_SETTLE_MS = 700 // 부드러운 스크롤이 멈출 때까지 기다리는 시간
+const VIDEO_MAX_SECONDS = 60 // 영상을 끝까지 틀 때의 상한
+const EMBED_SECONDS = 10 // 유튜브 같은 외부 영상은 끝을 알 수 없어 이만큼만 보여 줍니다
 
 // 페이지 안에서 한 번만 설치되는 도우미. window.__avatar 로 씁니다.
 const INSTALL = `(() => {
@@ -76,9 +78,16 @@ const INSTALL = `(() => {
         await wait(${SCROLL_SETTLE_MS})
         frame(v)
         cur.style.opacity = 0
-        if (v.tagName === 'VIDEO') { v.currentTime = 0; try { await v.play() } catch {} }
-        await wait(seconds * 1000)
-        if (v.tagName === 'VIDEO') v.pause()
+        if (v.tagName === 'VIDEO') {
+          v.currentTime = 0
+          try { await v.play() } catch {}
+          // seconds 가 0 이면 끝까지(최대 ${VIDEO_MAX_SECONDS}초) 틉니다
+          const limit = (seconds > 0 ? seconds : ${VIDEO_MAX_SECONDS}) * 1000
+          await Promise.race([wait(limit), new Promise((r) => v.addEventListener('ended', r, { once: true }))])
+          v.pause()
+        } else {
+          await wait((seconds > 0 ? seconds : ${EMBED_SECONDS}) * 1000)
+        }
       }
       box.style.opacity = 0
       const back = document.querySelector('.article__back, .detail__close')

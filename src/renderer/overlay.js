@@ -3,8 +3,8 @@
 const $ = (id) => document.getElementById(id)
 const api = window.avatar
 
-const LINE_GAP_MS = 350
-const VIDEO_SECONDS = 6 // 대본에 길이를 적지 않았을 때 영상을 틀어 두는 시간 // 대사 사이 숨 고르기
+const LINE_GAP_MS = 350 // 대사 사이 숨 고르기
+const VIDEO_SECONDS = 6 // 대본에 길이를 적지 않았을 때 영상을 틀어 두는 시간
 const FALLBACK_SECONDS_PER_CHAR = 0.13 // 내장 음성의 끝 이벤트가 안 올 때 예상 길이
 const SCRIPT_LABEL = { claude: '새로 각색한 대본', cache: '각색 대본', bundled: '동봉 각색 대본', template: '기본 대본' }
 const SPEAKER_LABEL = { avatar: '아바타', interviewer: '인터뷰어', visitor: '방문자 질문' }
@@ -191,7 +191,7 @@ async function playLine(line) {
   // 영상 보여 주기: 아바타는 비켜서고, 카드를 눌러 영상을 잠깐 틀었다가 닫습니다
   if (line.video) {
     await api.body.home()
-    await api.site.showVideo(line.video.title, line.video.seconds || VIDEO_SECONDS)
+    await api.site.showVideo(line.video.title, line.video.seconds ?? VIDEO_SECONDS)
   }
 }
 
