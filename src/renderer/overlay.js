@@ -202,6 +202,7 @@ async function playLine(line) {
 }
 
 async function playTour() {
+  const startedAt = performance.now()
   run.playing = true
   $('replay').hidden = true
   await api.site.top()
@@ -231,6 +232,7 @@ async function playTour() {
     }
   }
   run.playing = false
+  console.log(`[투어] 끝까지 ${Math.round((performance.now() - startedAt) / 1000)}초`) // 발표 시간 확인용
   $('replay').hidden = false
   setStatus(modeText() + ' · 질문은 계속 받을 수 있어요')
 }
