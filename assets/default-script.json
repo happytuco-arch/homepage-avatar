@@ -74,8 +74,7 @@
           "act": "point",
           "focus": {
             "kind": "card",
-            "title": "CHI PLAY '26 포스터 — Localising K-pop in Play",
-            "open": true
+            "title": "CHI PLAY '26 포스터 — Localising K-pop in Play"
           },
           "text": "메이플스토리 대만 서버 캐릭터 닉네임, 약 23만 개를 분석한 연구 포스터예요."
         },
@@ -262,11 +261,7 @@
         },
         {
           "who": "avatar",
-          "text": "게임은 몸으로, 논문은 문장으로 가르치죠. 둘 다 무엇이 배움을 즐겁게 만드는지 묻는다고 생각해요."
-        },
-        {
-          "who": "avatar",
-          "text": "관심 분야는 게임 시스템과 학습 경험이에요. Unity, Aseprite, Python, React로 만들고, HCI와 게임 연구, 교육에 관한 글을 써요.",
+          "text": "관심 분야는 게임 시스템과 데이터 분석이에요. 주로 Unity로 만들어요.",
           "focus": {
             "kind": "el",
             "title": ".about__specs"
