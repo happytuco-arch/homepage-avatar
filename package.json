@@ -9,7 +9,8 @@
     "start": "electron .",
     "test": "node --test tests/core.test.cjs",
     "snapshot": "node scripts/snapshot.js",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "bake": "node scripts/bake-script.js"
   },
   "build": {
     "appId": "io.github.happytucoarch.homepageavatar",

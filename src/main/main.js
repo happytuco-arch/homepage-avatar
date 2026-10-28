@@ -63,7 +63,7 @@ function createWindow() {
 
 // 개발용: AVATAR_SHOT=폴더 를 주면 몇 초마다 두 겹을 캡처합니다(동작 확인용)
 const SHOT_EVERY_MS = 5000
-const SHOT_COUNT = 24
+const SHOT_COUNT = 120
 function captureLoop(dir, site, overlay) {
   fs.mkdirSync(dir, { recursive: true })
   let n = 0
@@ -72,6 +72,11 @@ function captureLoop(dir, site, overlay) {
     const tag = String(n).padStart(2, '0')
     fs.writeFileSync(path.join(dir, `${tag}-site.png`), (await site.webContents.capturePage()).toPNG())
     fs.writeFileSync(path.join(dir, `${tag}-overlay.png`), (await overlay.webContents.capturePage()).toPNG())
+    if (n === 6) overlay.webContents.executeJavaScript(`console.log('LAYOUT', JSON.stringify([...document.querySelectorAll('.subtitle, .subtitle > *, body')].map(e => [e.className || e.tagName, Math.round(e.getBoundingClientRect().top), Math.round(e.getBoundingClientRect().height)])))`)
+    // AVATAR_ASK=질문 을 주면 40초쯤에 직접 질문을 넣어 끼어들기를 확인합니다
+    if (n === 8 && process.env.AVATAR_ASK) {
+      overlay.webContents.executeJavaScript(`document.getElementById('question').value = ${JSON.stringify(process.env.AVATAR_ASK)}; document.getElementById('ask').requestSubmit()`)
+    }
     if (n >= SHOT_COUNT) clearInterval(timer)
   }, SHOT_EVERY_MS)
 }

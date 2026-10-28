@@ -6,6 +6,7 @@ const api = window.avatar
 
 const LINE_GAP_MS = 350 // 대사 사이 숨 고르기
 const FALLBACK_SECONDS_PER_CHAR = 0.13 // 내장 음성의 끝 이벤트가 안 올 때 예상 길이
+const SCRIPT_LABEL = { claude: '새로 각색한 대본', cache: '각색 대본', bundled: '동봉 각색 대본', template: '기본 대본' }
 const SPEAKER_LABEL = { avatar: '아바타', interviewer: '인터뷰어', visitor: '방문자 질문' }
 
 // 내장 음성일 때 두 인물을 높낮이·속도로 구분합니다(Windows 기본 한국어 음성은 하나뿐)
@@ -206,7 +207,8 @@ function setStatus(t) { $('status').textContent = t }
 function modeText() {
   const m = tour.modes
   return [
-    m.llm ? 'Claude 대본·답변' : '기본 대본·질문 목록',
+    SCRIPT_LABEL[tour.script.source] || '각색 대본',
+    m.llm ? 'Claude 답변' : '질문 목록 답변',
     m.tts ? 'ElevenLabs 음성' : '내장 음성',
     tour.dataSource === 'live' ? '실시간 자료' : '동봉 자료',
   ].join(' · ')

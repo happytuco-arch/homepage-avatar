@@ -56,3 +56,12 @@ test('음성 캐시 키는 목소리와 글자가 같으면 같고, 다르면 �
 test('LLM 응답에서 JSON만 꺼낸다', () => {
   assert.deepStrictEqual(extractJson('설명\n```json\n{"a":1}\n```'), { a: 1 })
 })
+
+test('동봉 각색 대본: 강조 제목은 사이트 자료에 있고, 질문 목록은 20개 이상', () => {
+  const s = require('../assets/default-script.json')
+  assert.ok(validScript(s))
+  const titles = new Set(['works', 'papers', 'assignments'].flatMap((k) => snapshot[k].map((x) => x.title)))
+  for (const sc of s.scenes) for (const l of sc.lines) if (l.focus) assert.ok(titles.has(l.focus.title), l.focus.title)
+  assert.ok(s.faq.length >= 20)
+  assert.strictEqual(s.scenes.at(-1).lines.at(-1).act, 'bow')
+})
