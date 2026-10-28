@@ -65,6 +65,7 @@ function createWindow() {
   const control = createSiteControl(site.webContents)
   ipcMain.handle('site:menu', (_e, label) => control.menu(label))
   ipcMain.handle('site:menuRect', (_e, label) => control.menuRect(label))
+  ipcMain.handle('site:showVideo', (_e, title, seconds) => control.showVideo(title, seconds))
   ipcMain.handle('site:focus', (_e, kind, title) => control.focus(kind, title))
   ipcMain.handle('site:clear', () => control.clear())
   ipcMain.handle('site:top', () => control.top())

@@ -61,6 +61,34 @@ const INSTALL = `(() => {
       cur.style.opacity = 0 // 게시글은 아바타가 직접 걸어가 손으로 짚습니다
       return rectOf(el)
     },
+    // 카드를 눌러 상세 화면을 열고, 영상을 seconds 초 동안 틀었다가 닫고 목록으로 돌아옵니다
+    async showVideo(title, seconds) {
+      const t = norm(title)
+      const card = [...document.querySelectorAll('.card')].find((e) => norm(e.textContent).includes(t))
+      if (!card) return false
+      box.style.opacity = 0
+      await moveTo(card)
+      card.click()
+      await wait(1200)
+      const v = document.querySelector('.detail__video')
+      if (v) {
+        v.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        await wait(${SCROLL_SETTLE_MS})
+        frame(v)
+        cur.style.opacity = 0
+        if (v.tagName === 'VIDEO') { v.currentTime = 0; try { await v.play() } catch {} }
+        await wait(seconds * 1000)
+        if (v.tagName === 'VIDEO') v.pause()
+      }
+      box.style.opacity = 0
+      const back = document.querySelector('.article__back, .detail__close')
+      if (back) back.click()
+      else document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+      await wait(700)
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      await wait(${SCROLL_SETTLE_MS})
+      return true
+    },
     menuRect(label) {
       const el = [...document.querySelectorAll('.nav__link')].find((b) => norm(b.textContent) === label)
       return el ? rectOf(el) : null
@@ -72,10 +100,11 @@ const INSTALL = `(() => {
 })()`
 
 function createSiteControl(webContents) {
-  async function run(expr) {
+  // userGesture: 영상 재생처럼 사용자의 클릭이 있어야 허용되는 동작에 씁니다
+  async function run(expr, userGesture = false) {
     try {
       await webContents.executeJavaScript(INSTALL)
-      return await webContents.executeJavaScript(expr)
+      return await webContents.executeJavaScript(expr, userGesture)
     } catch (err) {
       console.warn('[site] 조작 실패:', err.message)
       return false
@@ -83,6 +112,7 @@ function createSiteControl(webContents) {
   }
   return {
     menu: (label) => run(`window.__avatar.menu(${JSON.stringify(label)})`),
+    showVideo: (title, seconds) => run(`window.__avatar.showVideo(${JSON.stringify(title)}, ${Number(seconds)})`, true),
     menuRect: (label) => run(`window.__avatar.menuRect(${JSON.stringify(label)})`),
     focus: (kind, title) => run(`window.__avatar.focus(${JSON.stringify(kind)}, ${JSON.stringify(title)})`),
     clear: () => run('window.__avatar.clear()'),
