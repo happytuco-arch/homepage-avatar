@@ -44,8 +44,8 @@ Actions 탭에서 build → Run workflow를 누르면 결과물(zip)을 내려�
 | 변수 | 쓰임 | 비웠을 때 |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | 사이트 자료를 대화체로 각색한 대본, 직접 질문 답변 | 기본 대본 + 질문 목록 매칭 |
-| `ELEVENLABS_API_KEY` | 아바타·인터뷰어 목소리(글자 단위 입 모양), 음성 질문 인식 | 컴퓨터 내장 음성, 마이크 버튼 숨김 |
-| `VOICE_AVATAR`, `VOICE_INTERVIEWER` | ElevenLabs 목소리 ID | 기본 목소리 |
+| `ELEVENLABS_API_KEY` | 직접 질문에 대한 답을 ElevenLabs 목소리로, 말로 한 질문 인식 | 대본은 동봉 음성으로, 질문 답만 내장 음성. 마이크 버튼 숨김 |
+| `VOICE_AVATAR`, `VOICE_INTERVIEWER` | ElevenLabs 목소리 ID | Brian · Jessica (동봉 음성과 같은 목소리) |
 | `SUPABASE_URL`, `SUPABASE_KEY` | 사이트 자료 실시간 읽기(공개 publishable 키) | `assets/site-snapshot.json` |
 | `CLAUDE_SCRIPT_MODEL`, `CLAUDE_ANSWER_MODEL` | 모델 바꾸기 | `claude-sonnet-5-5`, `claude-haiku-5-5` |
 
@@ -68,6 +68,11 @@ tests/         core.test.cjs — npm test
   - 새로 만들기: `npm run bake` (손으로 고친 내용은 덮어씀)
 - 음성은 사용자 데이터 폴더의 `audio-cache/`에 저장합니다. 같은 목소리·같은 대사는 다시 생성하지 않습니다(크레딧 절약).
 - my-homepage 코드는 수정하지 않습니다. 실행 중인 페이지에 커서·강조 테두리를 덧붙이고, 글을 읽는 동안만 스크롤 스냅을 잠시 끕니다.
+
+## 음성 출처
+
+대본 음성(`assets/voice/`)은 [ElevenLabs](https://elevenlabs.io)(elevenlabs.io) 무료 요금제의 기본 목소리 Brian(아바타)·Jessica(인터뷰어)로 만들었습니다.
+수업 과제용 비상업 배포이며, 무료 요금제 조건에 따라 출처를 표기합니다. 대본을 바꾸면 `npm run bake:voice`로 바뀐 대사만 다시 만듭니다.
 
 ## 테스트
 

@@ -5,9 +5,10 @@ const dotenv = require('dotenv')
 
 const SITE_URL = 'https://my-homepage-jh-f22e.vercel.app'
 
-// ElevenLabs 기본 목소리 (2026-12-31까지 사용 가능). Starter 가입 뒤 .env 에서 바꿉니다.
-const DEFAULT_VOICE_AVATAR = 'pNInz6obpgDQGcFmaJgB'
-const DEFAULT_VOICE_INTERVIEWER = 'JBFqnCBsd6RMkjVDRZzb'
+// ElevenLabs 기본 목소리 — 아바타 Brian(남) · 인터뷰어 Jessica(여). 동봉 음성(assets/voice)도 이 두 목소리로 만들었습니다.
+// 목소리를 바꾸면 동봉 음성과 맞지 않아 새로 생성합니다(.env 의 VOICE_AVATAR · VOICE_INTERVIEWER).
+const DEFAULT_VOICE_AVATAR = 'nPczCjzI2devNBz1zQrb'
+const DEFAULT_VOICE_INTERVIEWER = 'cgSgspJ2msm6clMCkdW9'
 
 const DEFAULT_SCRIPT_MODEL = 'claude-sonnet-5-5'
 const DEFAULT_ANSWER_MODEL = 'claude-haiku-5-5'

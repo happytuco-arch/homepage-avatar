@@ -15,10 +15,24 @@ function cacheKey(voiceId, text) {
   return crypto.createHash('sha1').update(`${TTS_MODEL}|${voiceId}|${text}`).digest('hex')
 }
 
+// 앱에 함께 넣어 배포하는 대본 음성(scripts/bake-voice.js 로 만듦). 키가 없어도 이 대사들은 ElevenLabs 목소리로 나옵니다
+const BUNDLED_DIR = path.join(__dirname, '..', '..', 'assets', 'voice')
+
+/** 동봉 음성이나 저장해 둔 음성이 있으면 돌려주고, 없으면 null (크레딧을 쓰지 않음) */
+function findSaved(voiceId, text, cacheDir) {
+  const name = cacheKey(voiceId, text) + '.json'
+  for (const dir of [BUNDLED_DIR, cacheDir]) {
+    const file = path.join(dir, name)
+    if (fs.existsSync(file)) return JSON.parse(fs.readFileSync(file, 'utf8'))
+  }
+  return null
+}
+
 /** { audio: base64 mp3, chars: [시작초…], mouth: [{t0,t1,v}] } 또는 예외 */
 async function synthesize({ key, voiceId, text, cacheDir }) {
+  const saved = findSaved(voiceId, text, cacheDir)
+  if (saved) return saved
   const base = path.join(cacheDir, cacheKey(voiceId, text))
-  if (fs.existsSync(base + '.json')) return JSON.parse(fs.readFileSync(base + '.json', 'utf8'))
 
   const res = await fetch(`${API}/text-to-speech/${voiceId}/with-timestamps?output_format=mp3_44100_128`, {
     method: 'POST',
@@ -50,4 +64,4 @@ async function transcribe({ key, audio, mime }) {
   return ((await res.json()).text || '').trim()
 }
 
-module.exports = { synthesize, transcribe, cacheKey }
+module.exports = { synthesize, transcribe, cacheKey, findSaved, BUNDLED_DIR }

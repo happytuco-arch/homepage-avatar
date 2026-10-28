@@ -66,3 +66,16 @@ test('동봉 각색 대본: 강조 제목은 사이트 자료에 있고, 질문 
   assert.ok(s.faq.length >= 20)
   assert.strictEqual(s.scenes.at(-1).lines.at(-1).act, 'bow')
 })
+
+test('동봉 음성: 대본의 모든 대사에 기본 목소리 음성이 들어 있다(키 없이도 ElevenLabs 목소리)', () => {
+  const fs = require('fs')
+  const path = require('path')
+  const { BUNDLED_DIR } = require('../src/main/voice')
+  const AVATAR = 'nPczCjzI2devNBz1zQrb'
+  const INTERVIEWER = 'cgSgspJ2msm6clMCkdW9'
+  const s = require('../assets/default-script.json')
+  for (const sc of s.scenes) for (const l of sc.lines) {
+    const file = path.join(BUNDLED_DIR, cacheKey(l.who === 'interviewer' ? INTERVIEWER : AVATAR, l.text) + '.json')
+    assert.ok(fs.existsSync(file), l.text)
+  }
+})

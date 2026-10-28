@@ -5,7 +5,7 @@ const { app, BaseWindow, WebContentsView, ipcMain, session } = require('electron
 const { loadConfig } = require('./config')
 const { loadSiteData } = require('./siteData')
 const { getScript, answer } = require('./llm')
-const { synthesize, transcribe } = require('./voice')
+const { synthesize, transcribe, findSaved, BUNDLED_DIR } = require('./voice')
 const { createSiteControl } = require('./site')
 const { createStage } = require('./stage')
 const { startRecording } = require('./record')
@@ -108,6 +108,8 @@ function captureLoop(dir, site, overlay, avatarView) {
   }, SHOT_EVERY_MS)
 }
 
+const hasBundledVoice = () => fs.existsSync(BUNDLED_DIR) && fs.readdirSync(BUNDLED_DIR).some((f) => f.endsWith('.json'))
+
 function registerServices() {
   const cacheDir = path.join(app.getPath('userData'), 'audio-cache')
 
@@ -124,7 +126,7 @@ function registerServices() {
       script,
       dataSource: source,
       startScene: process.env.AVATAR_FROM || null, // 개발용: 이 장면부터 시작
-      modes: { llm: !!cfg.anthropicKey, tts: !!cfg.elevenKey, stt: !!cfg.elevenKey },
+      modes: { llm: !!cfg.anthropicKey, tts: !!cfg.elevenKey || hasBundledVoice(), stt: !!cfg.elevenKey },
     }
   })
 
@@ -134,6 +136,9 @@ function registerServices() {
 
   ipcMain.handle('tts:speak', async (_e, who, text) => {
     const voiceId = who === 'interviewer' ? cfg.voiceInterviewer : cfg.voiceAvatar
+    // 동봉·저장된 음성은 키가 없어도 씁니다(크레딧 0)
+    const saved = findSaved(voiceId, text, cacheDir)
+    if (saved) return { ok: true, ...saved }
     if (!cfg.elevenKey || blockedVoices.has(voiceId)) return { ok: false }
     try {
       return { ok: true, ...(await synthesize({ key: cfg.elevenKey, voiceId, text, cacheDir })) }
