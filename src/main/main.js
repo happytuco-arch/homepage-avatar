@@ -8,6 +8,7 @@ const { getScript, answer } = require('./llm')
 const { synthesize, transcribe } = require('./voice')
 const { createSiteControl } = require('./site')
 const { createStage } = require('./stage')
+const { startRecording } = require('./record')
 
 const WINDOW_W = 1280
 const WINDOW_H = 820
@@ -83,6 +84,7 @@ function createWindow() {
     if (process.env.AVATAR_LOG) fs.appendFileSync(process.env.AVATAR_LOG, e.message + '\n')
   })
   if (process.env.AVATAR_SHOT) captureLoop(process.env.AVATAR_SHOT, site, overlay, avatarView)
+  if (process.env.AVATAR_RECORD) startRecording(win, overlay, process.env.AVATAR_RECORD)
 }
 
 // 개발용: AVATAR_SHOT=폴더 를 주면 몇 초마다 두 겹을 캡처합니다(동작 확인용)
@@ -98,7 +100,6 @@ function captureLoop(dir, site, overlay, avatarView) {
     fs.writeFileSync(path.join(dir, `${tag}-overlay.png`), (await overlay.webContents.capturePage()).toPNG())
     fs.writeFileSync(path.join(dir, `${tag}-bounds.txt`), JSON.stringify(avatarView.getBounds()))
     fs.writeFileSync(path.join(dir, `${tag}-avatar.png`), (await avatarView.webContents.capturePage()).toPNG())
-    if (n === 6) overlay.webContents.executeJavaScript(`console.log('LAYOUT', JSON.stringify([...document.querySelectorAll('.subtitle, .subtitle > *, body')].map(e => [e.className || e.tagName, Math.round(e.getBoundingClientRect().top), Math.round(e.getBoundingClientRect().height)])))`)
     // AVATAR_ASK=질문 을 주면 40초쯤에 직접 질문을 넣어 끼어들기를 확인합니다
     if (n === 8 && process.env.AVATAR_ASK) {
       overlay.webContents.executeJavaScript(`document.getElementById('question').value = ${JSON.stringify(process.env.AVATAR_ASK)}; document.getElementById('ask').requestSubmit()`)
@@ -161,7 +162,9 @@ app.whenReady().then(() => {
   cfg = loadConfig(app)
   console.log(`[config] .env: ${cfg.envFile || '없음'} · Claude ${cfg.anthropicKey ? '있음' : '없음'} · ElevenLabs ${cfg.elevenKey ? '있음' : '없음'}`)
   // 마이크(직접 질문을 말로 받기)만 허용합니다.
-  session.defaultSession.setPermissionRequestHandler((_wc, permission, cb) => cb(permission === 'media'))
+  // 녹화(AVATAR_RECORD)할 때만 화면 녹화 권한도 엽니다
+  session.defaultSession.setPermissionRequestHandler((_wc, permission, cb) =>
+    cb(permission === 'media' || (!!process.env.AVATAR_RECORD && permission === 'display-capture')))
   registerServices()
   createWindow()
 })

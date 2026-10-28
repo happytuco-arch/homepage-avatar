@@ -4,7 +4,8 @@
 인터뷰어 질문과 방문자의 직접 질문(글자·음성)에 답하는 Electron 데스크톱 앱입니다.
 
 - 기획 과정: [지도 이슈](https://github.com/happytuco-arch/homepage-avatar/issues/1) · [docs/00-사용장면.md](docs/00-사용장면.md) · [docs/01-설계서.md](docs/01-설계서.md)
-- 사람이 읽는 사용법: [docs/사용가이드.md](docs/사용가이드.md)
+- 사람이 읽는 사용법: [docs/사용가이드.md](docs/사용가이드.md) · 대본 전체: [docs/대본.md](docs/대본.md)
+- 실행 파일 받기: [Releases](https://github.com/happytuco-arch/homepage-avatar/releases)
 
 ## 실행 환경
 
@@ -53,15 +54,20 @@ Actions 탭에서 build → Run workflow를 누르면 결과물(zip)을 내려�
 ## 구조
 
 ```
-src/main/      main.js(창 두 겹·IPC) · config · siteData(Supabase) · llm(Claude) · voice(ElevenLabs) · site(사이트 조작) · lipsync · template
-src/renderer/  overlay.html/css/js(자막·조작·투어 진행) · avatar3d.js(3D 아바타)
-assets/        site-snapshot.json(오프라인 자료) · avatar.vrm(선택: 넣으면 VRM 아바타 사용)
-scripts/       snapshot.js — 사이트 자료 스냅숏 갱신 (npm run snapshot)
+src/main/      main.js(창 세 겹·IPC) · stage.js(아바타 층을 화면 위로 걷게 함) · site.js(사이트 조작: 메뉴·강조·글 열기·영상)
+               config · siteData(Supabase) · llm(Claude) · voice(ElevenLabs) · lipsync · template · record(개발용 녹화)
+src/renderer/  overlay.*(자막·조작·투어 진행) · avatar.html / avatar-view.js / avatar3d.js(3D 아바타)
+assets/        site-snapshot.json(오프라인 자료) · default-script.json(각색 대본 + 질문 목록) · avatar.vrm(선택)
+scripts/       snapshot.js(npm run snapshot) · bake-script.js(npm run bake) · script-md.js(npm run script:md / script:apply)
 tests/         core.test.cjs — npm test
 ```
 
-- 대본과 음성은 사용자 데이터 폴더의 `audio-cache/`에 저장합니다. 같은 사이트 자료·같은 대사는 다시 생성하지 않습니다(크레딧 절약).
-- my-homepage 코드는 수정하지 않습니다. 실행 중인 페이지에 손 모양 커서와 강조 테두리를 덧붙여 그릴 뿐입니다.
+- 창은 세 겹입니다. 아래는 실제 사이트, 그 위에 자막·버튼 띠, 맨 위에 작은 투명 아바타 층이 사이트 위를 옮겨 다닙니다.
+- 대본(`assets/default-script.json`)은 사이트 자료를 Claude가 대화체로 각색한 것을 사람이 다듬은 것입니다. 사이트 자료가 같으면 실행할 때 Claude를 부르지 않습니다.
+  - 대본 고치기: `npm run script:md` → `docs/대본.md` 수정 → `npm run script:apply`
+  - 새로 만들기: `npm run bake` (손으로 고친 내용은 덮어씀)
+- 음성은 사용자 데이터 폴더의 `audio-cache/`에 저장합니다. 같은 목소리·같은 대사는 다시 생성하지 않습니다(크레딧 절약).
+- my-homepage 코드는 수정하지 않습니다. 실행 중인 페이지에 커서·강조 테두리를 덧붙이고, 글을 읽는 동안만 스크롤 스냅을 잠시 끕니다.
 
 ## 테스트
 
@@ -74,3 +80,7 @@ npm test
 - `AVATAR_DEVTOOLS=1` — 아바타 띠의 개발자 도구 열기
 - `AVATAR_SHOT=<폴더>` — 5초마다 화면 두 겹을 PNG로 저장
 - `AVATAR_LOG=<파일>` — 아바타 띠의 콘솔 출력을 파일로 저장
+- `AVATAR_FROM=<장면 id>` — 그 장면부터 시작(intro · works · papers · assignments · about · outro)
+- `AVATAR_SHOT_MS=<ms>` — 캡처 간격
+- `AVATAR_ASK=<질문>` — 40초쯤 직접 질문을 넣어 끼어들기 확인
+- `AVATAR_RECORD=<파일.mp4>` — 앱 창과 소리를 녹화(`AVATAR_RECORD_SECONDS`, `AVATAR_RECORD_DELAY`). 크레딧을 쓰지 않으려면 `ELEVENLABS_API_KEY=` 를 함께 줌
