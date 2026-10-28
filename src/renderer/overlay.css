@@ -1,0 +1,87 @@
+/* 투명한 아래쪽 띠. 왼쪽 조작 · 가운데 자막 · 오른쪽 아바타 */
+:root {
+  --ink: #15171c;
+  --panel: rgba(255, 255, 255, 0.94);
+  --accent: #ff5a36;
+  --interviewer: #2f6fdb;
+  --line: rgba(21, 23, 28, 0.12);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  color: var(--ink);
+}
+
+body {
+  display: grid;
+  grid-template-columns: 300px 1fr 280px;
+  align-items: end;
+  gap: 16px;
+  padding: 0 0 14px 16px;
+}
+
+.controls, .subtitle {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+.controls { padding: 12px; display: grid; gap: 8px; align-self: end; }
+.buttons { display: flex; gap: 6px; }
+
+button {
+  font: inherit;
+  font-size: 13px;
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 10px;
+  padding: 7px 10px;
+  cursor: pointer;
+}
+button:hover { border-color: var(--ink); }
+button[type="submit"] { background: var(--ink); color: #fff; }
+#mic.recording { background: var(--accent); color: #fff; animation: pulse 1s infinite; }
+@keyframes pulse { 50% { opacity: 0.6; } }
+
+form { display: flex; gap: 6px; }
+input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 13px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.status { margin: 0; font-size: 11px; color: #666; }
+
+.subtitle {
+  min-height: 92px;
+  align-self: end;
+  padding: 14px 20px;
+  position: relative;
+}
+.speaker { margin: 0 0 4px; font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: 0.04em; }
+.speaker.interviewer { color: var(--interviewer); }
+.speaker.visitor { color: #555; }
+.line { margin: 0; font-size: 19px; line-height: 1.5; word-break: keep-all; }
+.line .rest { color: rgba(21, 23, 28, 0.28); }
+.replay {
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  background: var(--accent);
+  color: #fff;
+  border: 0;
+  font-size: 15px;
+  padding: 10px 16px;
+}
+
+.avatar { width: 280px; height: 300px; display: block; }

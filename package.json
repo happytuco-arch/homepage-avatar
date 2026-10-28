@@ -1,0 +1,51 @@
+{
+  "name": "homepage-avatar",
+  "version": "1.0.0",
+  "description": "내 홈페이지를 아바타가 직접 넘기며 소개하고 질문에 답하는 데스크톱 앱",
+  "main": "src/main/main.js",
+  "author": "happytuco-arch",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test tests/core.test.cjs",
+    "snapshot": "node scripts/snapshot.js",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "io.github.happytucoarch.homepageavatar",
+    "productName": "HomepageAvatar",
+    "files": [
+      "src/**",
+      "assets/**",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "zip"
+      ]
+    },
+    "mac": {
+      "target": [
+        "zip"
+      ],
+      "identity": null,
+      "category": "public.app-category.education",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "아바타에게 말로 질문할 때 마이크를 씁니다."
+      }
+    },
+    "directories": {
+      "output": "dist"
+    },
+    "asar": true
+  },
+  "dependencies": {
+    "@pixiv/three-vrm": "^3.5.5",
+    "dotenv": "^18.0.9",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "electron": "^45.1.0",
+    "electron-builder": "^26.18.0"
+  }
+}

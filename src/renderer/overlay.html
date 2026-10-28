@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'sha256-c3e1nFpqkVdN44lz8PtI1BNSIQNYL1IXX51LJ3vhICM='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' data: blob:" />
+  <title>Homepage Avatar</title>
+  <!-- 아래 importmap 을 고치면 CSP 의 sha256 값도 바꿔야 합니다(콘솔 오류에 새 값이 나옴) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "../../node_modules/three/build/three.module.js",
+        "three/addons/": "./vendor/three-addons/",
+        "@pixiv/three-vrm": "../../node_modules/@pixiv/three-vrm/lib/three-vrm.module.js"
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="overlay.css" />
+</head>
+<body>
+  <section class="controls" aria-label="조작">
+    <div class="buttons">
+      <button id="pause" title="일시정지 (Space)">⏸ 일시정지</button>
+      <button id="skip" title="다음 장면으로">⏭ 건너뛰기</button>
+    </div>
+    <form id="ask" autocomplete="off">
+      <input id="question" placeholder="아바타에게 직접 질문하기…" maxlength="200" />
+      <button id="mic" type="button" title="말로 질문하기" hidden>🎤</button>
+      <button type="submit">묻기</button>
+    </form>
+    <p id="status" class="status">자료를 불러오는 중…</p>
+  </section>
+
+  <section class="subtitle" aria-live="polite">
+    <p id="speaker" class="speaker"></p>
+    <p id="line" class="line"></p>
+    <button id="replay" class="replay" hidden>↻ 다시 보기</button>
+  </section>
+
+  <canvas id="avatar" class="avatar"></canvas>
+
+  <script type="module" src="overlay.js"></script>
+</body>
+</html>
