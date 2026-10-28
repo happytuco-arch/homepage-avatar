@@ -172,7 +172,7 @@ async function answer({ cfg, data, faq, question }) {
     try {
       const text = await claude({
         key: cfg.anthropicKey, model: cfg.answerModel, system: ANSWER_SYSTEM,
-        user: `사이트 자료:\n${JSON.stringify(data)}\n\n질문: ${question}`, maxTokens: 400, timeoutMs: ANSWER_TIMEOUT_MS,
+        user: `사이트 자료:\n${JSON.stringify(data)}\n\n질문: ${question}`, maxTokens: 1000, timeoutMs: ANSWER_TIMEOUT_MS,
       })
       return { text: text.trim(), source: 'claude' }
     } catch (err) {

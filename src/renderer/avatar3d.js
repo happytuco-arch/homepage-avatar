@@ -9,6 +9,7 @@ const WALK_START_X = 2.6
 const BOW_ANGLE = Math.PI / 2 // 90도 인사
 const BOW_SECONDS = 1.1
 const BOW_HOLD_SECONDS = 1.2
+const BOW_TURN = 0.7 // 인사할 때 몸을 돌리는 각도(정면에서는 숙인 각도가 안 보임)
 const MOUTH_SHAPES = ['aa', 'ih', 'ou', 'ee', 'oh']
 
 // 코드 인물의 입 모양 (가로, 세로 배율)
@@ -168,6 +169,7 @@ export async function createAvatar(canvas) {
         const total = BOW_SECONDS * 2 + BOW_HOLD_SECONDS
         const k = t < BOW_SECONDS ? t / BOW_SECONDS : t < BOW_SECONDS + BOW_HOLD_SECONDS ? 1 : Math.max(0, 1 - (t - BOW_SECONDS - BOW_HOLD_SECONDS) / BOW_SECONDS)
         pose.bow = BOW_ANGLE * (0.5 - Math.cos(Math.PI * k) / 2)
+        pose.yaw = -BOW_TURN * Math.min(1, t * 2) * (t < total - 0.5 ? 1 : Math.max(0, (total - t) * 2)) // 옆으로 살짝 돌아 90도가 보이게
         if (t >= total) finish('bow')
         break
       }

@@ -62,7 +62,7 @@ function createWindow() {
 }
 
 // 개발용: AVATAR_SHOT=폴더 를 주면 몇 초마다 두 겹을 캡처합니다(동작 확인용)
-const SHOT_EVERY_MS = 5000
+const SHOT_EVERY_MS = Number(process.env.AVATAR_SHOT_MS) || 5000
 const SHOT_COUNT = 120
 function captureLoop(dir, site, overlay) {
   fs.mkdirSync(dir, { recursive: true })
@@ -96,16 +96,22 @@ function registerServices() {
     return {
       script,
       dataSource: source,
+      startScene: process.env.AVATAR_FROM || null, // 개발용: 이 장면부터 시작
       modes: { llm: !!cfg.anthropicKey, tts: !!cfg.elevenKey, stt: !!cfg.elevenKey },
     }
   })
 
+  // 요금제·키 문제로 거절된 목소리는 이번 실행 동안 다시 부르지 않습니다(매 줄 실패 요청 방지)
+  const blockedVoices = new Set()
+  const PERMANENT_TTS_ERROR = / 40[12]: |paid_plan_required|free_users_not_allowed|invalid_api_key/
+
   ipcMain.handle('tts:speak', async (_e, who, text) => {
-    if (!cfg.elevenKey) return { ok: false }
+    const voiceId = who === 'interviewer' ? cfg.voiceInterviewer : cfg.voiceAvatar
+    if (!cfg.elevenKey || blockedVoices.has(voiceId)) return { ok: false }
     try {
-      const voiceId = who === 'interviewer' ? cfg.voiceInterviewer : cfg.voiceAvatar
       return { ok: true, ...(await synthesize({ key: cfg.elevenKey, voiceId, text, cacheDir })) }
     } catch (err) {
+      if (PERMANENT_TTS_ERROR.test(err.message)) blockedVoices.add(voiceId)
       console.warn('[tts] 실패, 내장 음성 사용:', err.message)
       return { ok: false }
     }

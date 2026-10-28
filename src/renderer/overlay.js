@@ -180,7 +180,10 @@ async function playTour() {
   $('replay').hidden = true
   await api.site.top()
   await avatar.play('walkIn')
+  let started = !tour.startScene
   for (const scene of tour.script.scenes) {
+    if (!started && scene.id !== tour.startScene) continue
+    started = true
     run.skip = false
     if (scene.page) {
       avatar.play('point')

@@ -76,7 +76,7 @@ input {
 .replay {
   position: absolute;
   right: 14px;
-  bottom: 12px;
+  top: -54px;
   background: var(--accent);
   color: #fff;
   border: 0;
@@ -84,4 +84,4 @@ input {
   padding: 10px 16px;
 }
 
-.avatar { width: 280px; height: 300px; display: block; }
+.avatar-canvas { width: 280px; height: 300px; display: block; }
