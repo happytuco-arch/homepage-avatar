@@ -1,0 +1,2 @@
+# importmap 내용이 CSP sha256 값과 맞아야 하므로 줄바꿈을 LF로 고정합니다
+src/renderer/overlay.html text eol=lf
