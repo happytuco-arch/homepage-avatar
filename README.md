@@ -11,7 +11,7 @@
 
 | 항목 | 값 |
 |---|---|
-| OS | Windows 10/11, macOS 12 이상 |
+| OS | Windows 10/11 (x64), macOS 12 이상 (Apple Silicon. Intel Mac 은 소스에서 `npm start`) |
 | 런타임 | Node.js 20 이상 (소스에서 실행할 때만) |
 | 주요 의존성 | electron 45, three 0.186, @pixiv/three-vrm 3, dotenv |
 | 빌드 | electron-builder 26 (Windows zip / macOS zip, 서명 없음) |
