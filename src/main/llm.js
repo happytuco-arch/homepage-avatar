@@ -159,7 +159,7 @@ async function getScript({ cfg, data, cacheDir, fresh = false }) {
     if (!Array.isArray(script.faq) || script.faq.length < MIN_FAQ) script.faq = await generateFaq(cfg, data)
     // 사이트 자료에 없는 제목을 짚으라는 focus 는 지웁니다(지어낸 항목을 강조하지 않음)
     const titles = new Set(['works', 'papers', 'assignments'].flatMap((k) => (data[k] || []).map((x) => x.title)))
-    for (const sc of script.scenes) for (const l of sc.lines) if (l.focus && !titles.has(l.focus.title)) delete l.focus
+    for (const sc of script.scenes) for (const l of sc.lines) if (l.focus && l.focus.kind !== 'el' && !titles.has(l.focus.title)) delete l.focus
     fs.mkdirSync(cacheDir, { recursive: true })
     fs.writeFileSync(file, JSON.stringify(script, null, 2))
     return { ...script, source: 'claude' }

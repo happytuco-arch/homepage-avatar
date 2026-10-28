@@ -192,7 +192,7 @@ async function playLine(line) {
   // 게시글 열어 읽기: 아바타는 비켜서고, 이어지는 대사 동안 글을 천천히 내려 보여 줍니다
   if (line.focus?.open) {
     await api.body.home()
-    await api.site.openPost(line.focus.title)
+    await api.site.openPost(line.focus.kind, line.focus.title)
   }
   // 영상 보여 주기: 아바타는 비켜서고, 카드를 눌러 영상을 잠깐 틀었다가 닫습니다
   if (line.video) {

@@ -33,6 +33,14 @@ const INSTALL = `(() => {
     cur.style.transform = 'translate(' + (r.left + r.width / 2 - 12) + 'px,' + (r.top + r.height / 2 - 6) + 'px)'
     await wait(${CURSOR_MS})
   }
+  // 강조 대상: card(작품 카드)·post(논문·과제 글)는 제목으로, el 은 CSS 선택자로 찾습니다
+  function findTarget(kind, title) {
+    if (kind === 'el') return document.querySelector(title)
+    const list = [...document.querySelectorAll(kind === 'card' ? '.card' : '.post')]
+    const t = norm(title)
+    return list.find((e) => norm(e.textContent).includes(t)) ||
+      list.find((e) => t.length > 8 && norm(e.textContent).includes(t.slice(0, 8)))
+  }
   // 화면(창) 기준 위치. 아바타 층이 이 좌표로 걸어갑니다
   function rectOf(el) {
     const r = el.getBoundingClientRect()
@@ -55,10 +63,7 @@ const INSTALL = `(() => {
       return true
     },
     async focus(kind, title) {
-      const list = [...document.querySelectorAll(kind === 'card' ? '.card' : '.post')]
-      const t = norm(title)
-      const el = list.find((e) => norm(e.textContent).includes(t)) ||
-        list.find((e) => t.length > 8 && norm(e.textContent).includes(t.slice(0, 8)))
+      const el = findTarget(kind, title)
       if (!el) return false
       el.scrollIntoView({ behavior: 'smooth', block: 'center' })
       await wait(${SCROLL_SETTLE_MS})
@@ -102,9 +107,8 @@ const INSTALL = `(() => {
       return true
     },
     // 게시글을 눌러 열고, 대사가 이어지는 동안 천천히 아래로 내려 읽어 줍니다(closePost 까지)
-    async openPost(title) {
-      const t = norm(title)
-      const el = [...document.querySelectorAll('.post')].find((e) => norm(e.textContent).includes(t))
+    async openPost(kind, title) {
+      const el = findTarget(kind, title)
       if (!el) return false
       await moveTo(el)
       cur.classList.remove('press'); void cur.offsetWidth; cur.classList.add('press')
@@ -112,7 +116,10 @@ const INSTALL = `(() => {
       el.click()
       await wait(900)
       cur.style.opacity = 0
-      scrollTo({ top: 0 })
+      // 작품 상세는 첫 화면 아래에 열리므로 글의 맨 위로 맞춥니다(논문·과제는 페이지 맨 위)
+      const art = document.querySelector('.article')
+      if (art) art.scrollIntoView({ block: 'start' })
+      else scrollTo({ top: 0 })
       clearInterval(window.__avatarScroll)
       await wait(${READ_PAUSE_MS})
       // 사이트의 스크롤 스냅(mandatory)이 조금씩 내린 위치를 되돌리므로, 읽는 동안만 실행 중인 페이지에서 끕니다
@@ -157,7 +164,7 @@ function createSiteControl(webContents) {
   }
   return {
     menu: (label) => run(`window.__avatar.menu(${JSON.stringify(label)})`),
-    openPost: (title) => run(`window.__avatar.openPost(${JSON.stringify(title)})`),
+    openPost: (kind, title) => run(`window.__avatar.openPost(${JSON.stringify(kind)}, ${JSON.stringify(title)})`),
     closePost: () => run('window.__avatar.closePost()'),
     showVideo: (title, seconds) => run(`window.__avatar.showVideo(${JSON.stringify(title)}, ${Number(seconds)})`, true),
     menuRect: (label) => run(`window.__avatar.menuRect(${JSON.stringify(label)})`),

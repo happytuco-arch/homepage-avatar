@@ -74,7 +74,8 @@
           "act": "point",
           "focus": {
             "kind": "card",
-            "title": "CHI PLAY '26 포스터 — Localising K-pop in Play"
+            "title": "CHI PLAY '26 포스터 — Localising K-pop in Play",
+            "open": true
           },
           "text": "메이플스토리 대만 서버 캐릭터 닉네임, 약 23만 개를 분석한 연구 포스터예요."
         },
@@ -101,7 +102,8 @@
           "act": "point",
           "focus": {
             "kind": "post",
-            "title": "Localising K-pop in Play: Gaming-Cultural Hybridity in Taiwan Player Nicknames"
+            "title": "Localising K-pop in Play: Gaming-Cultural Hybridity in Taiwan Player Nicknames",
+            "open": true
           },
           "text": "이제 Papers로 넘어올게요. 방금 그 포스터의 본체가 이 논문이에요. JaeJun Lee 님과 함께 썼습니다."
         },
@@ -198,6 +200,26 @@
           "text": "Week 6에는 같은 프롬프트를 스킬 없이 한 번, 오픈소스 스킬 5종을 얹어 한 번 돌려 비교했어요."
         },
         {
+          "who": "interviewer",
+          "text": "스킬을 얹으면 뭐가 달라지던가요?"
+        },
+        {
+          "who": "avatar",
+          "text": "정리의 품질이 달라졌어요. 서지정보가 확정된 논문이 7편 중 1편에서 6편으로, DOI 표기는 0건에서 12건으로 늘었어요."
+        },
+        {
+          "who": "avatar",
+          "text": "슬라이드도요. 스킬 없이는 9장 모두 제목과 글머리표였는데, 스킬을 얹으니 수치 타일, 타임라인, 표, 막대그래프처럼 장마다 구성이 달라졌어요."
+        },
+        {
+          "who": "interviewer",
+          "text": "PPT 장인이 되셨네요."
+        },
+        {
+          "who": "avatar",
+          "text": "제가 아니라 스킬 덕분이죠. 대신 프롬프트를 한 글자도 바꾸지 않고 비교해서, 차이가 어디서 왔는지 분명히 볼 수 있었어요."
+        },
+        {
           "who": "avatar",
           "act": "point",
           "focus": {
@@ -222,13 +244,56 @@
       ]
     },
     {
+      "id": "about",
+      "page": "About",
+      "lines": [
+        {
+          "who": "interviewer",
+          "text": "마지막으로 어떤 분인지 소개해 주세요."
+        },
+        {
+          "who": "avatar",
+          "text": "About 페이지예요. 제가 가장 아끼는 문장은 'I keep the judgement, not just the result.' 결과만이 아니라 판단을 남긴다는 뜻이에요.",
+          "act": "point",
+          "focus": {
+            "kind": "el",
+            "title": ".about__quote"
+          }
+        },
+        {
+          "who": "avatar",
+          "text": "게임은 몸으로, 논문은 문장으로 가르치죠. 둘 다 무엇이 배움을 즐겁게 만드는지 묻는다고 생각해요."
+        },
+        {
+          "who": "avatar",
+          "text": "관심 분야는 게임 시스템과 학습 경험이에요. Unity, Aseprite, Python, React로 만들고, HCI와 게임 연구, 교육에 관한 글을 써요.",
+          "focus": {
+            "kind": "el",
+            "title": ".about__specs"
+          }
+        },
+        {
+          "who": "interviewer",
+          "text": "협업도 열려 있나요?"
+        },
+        {
+          "who": "avatar",
+          "text": "네, 지금 협업에 열려 있어요. 이메일과 링크드인, 디지털 명함 QR도 여기 있으니 편하게 연락 주세요.",
+          "focus": {
+            "kind": "el",
+            "title": ".about__qr"
+          }
+        }
+      ]
+    },
+    {
       "id": "outro",
       "page": null,
       "lines": [
         {
           "who": "avatar",
           "act": "wave",
-          "text": "정리해 볼게요. Works에서는 WFP 부스와 플레이 영상, Papers에서는 대만 게임 닉네임 속 K-pop 연구, Assignments에서는 프롬프트 구조화부터 AI 숏폼까지 소개해 드렸어요."
+          "text": "정리해 볼게요. Works에서는 WFP 부스와 플레이 영상, Papers에서는 대만 게임 닉네임 속 K-pop 연구, Assignments에서는 프롬프트 구조화부터 AI 숏폼까지, 그리고 About에서 저를 소개해 드렸어요."
         },
         {
           "who": "interviewer",

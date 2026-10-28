@@ -61,7 +61,8 @@ test('동봉 각색 대본: 강조 제목은 사이트 자료에 있고, 질문 
   const s = require('../assets/default-script.json')
   assert.ok(validScript(s))
   const titles = new Set(['works', 'papers', 'assignments'].flatMap((k) => snapshot[k].map((x) => x.title)))
-  for (const sc of s.scenes) for (const l of sc.lines) if (l.focus) assert.ok(titles.has(l.focus.title), l.focus.title)
+  // el 은 About 처럼 Supabase 밖 화면 요소를 CSS 선택자로 짚는 것이라 제목 검사에서 뺍니다
+  for (const sc of s.scenes) for (const l of sc.lines) if (l.focus && l.focus.kind !== 'el') assert.ok(titles.has(l.focus.title), l.focus.title)
   assert.ok(s.faq.length >= 20)
   assert.strictEqual(s.scenes.at(-1).lines.at(-1).act, 'bow')
 })

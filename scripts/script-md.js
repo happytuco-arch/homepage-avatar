@@ -9,7 +9,7 @@ const JSON_FILE = path.join(__dirname, '..', 'assets', 'default-script.json')
 const MD_FILE = path.join(__dirname, '..', 'docs', '대본.md')
 const WHO = { avatar: '아바타', interviewer: '인터뷰어' }
 const ACT = { wave: '손 흔들기', point: '가리키기', bow: '90도 인사' }
-const PAGE = { Works: '작품', Papers: '논문', Assignments: '과제' }
+const PAGE = { Works: '작품', Papers: '논문', Assignments: '과제', About: '소개' }
 const rev = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [v, k]))
 
 function toMd(s) {
