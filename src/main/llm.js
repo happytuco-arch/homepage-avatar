@@ -4,6 +4,8 @@ const path = require('path')
 const { hashData } = require('./siteData')
 const { buildTemplateScript, matchFaq, NOT_ON_SITE } = require('./template')
 
+// 오류 메시지에 키처럼 보이는 값이 섞여 나오면 가립니다(로그에 키가 남지 않게)
+const mask = (s) => String(s).replace(/sk[-_][A-Za-z0-9_-]{6,}/g, 'sk-***').slice(0, 200)
 const API = 'https://api.anthropic.com/v1/messages'
 const SCRIPT_TIMEOUT_MS = 90000
 const ANSWER_TIMEOUT_MS = 20000
@@ -19,7 +21,7 @@ async function claude({ key, model, system, user, maxTokens, timeoutMs, tool }) 
     body: JSON.stringify(body),
     signal: AbortSignal.timeout(timeoutMs),
   })
-  if (!res.ok) throw new Error(`Claude ${res.status}: ${(await res.text()).slice(0, 200)}`)
+  if (!res.ok) throw new Error(`Claude ${res.status}: ${mask(await res.text())}`)
   const out = await res.json()
   if (tool) return out.content.find((c) => c.type === 'tool_use')?.input
   return out.content.filter((c) => c.type === 'text').map((c) => c.text).join('')

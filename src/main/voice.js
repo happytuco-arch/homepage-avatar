@@ -4,6 +4,8 @@ const path = require('path')
 const crypto = require('crypto')
 const { mouthTimeline } = require('./lipsync')
 
+// 오류 메시지에 키처럼 보이는 값이 섞여 나오면 가립니다(로그에 키가 남지 않게)
+const mask = (s) => String(s).replace(/sk[-_][A-Za-z0-9_-]{6,}/g, 'sk-***').slice(0, 200)
 const API = 'https://api.elevenlabs.io/v1'
 const TTS_MODEL = 'eleven_multilingual_v2'
 const STT_MODEL = 'scribe_v1'
@@ -24,7 +26,7 @@ async function synthesize({ key, voiceId, text, cacheDir }) {
     body: JSON.stringify({ text, model_id: TTS_MODEL }),
     signal: AbortSignal.timeout(TTS_TIMEOUT_MS),
   })
-  if (!res.ok) throw new Error(`ElevenLabs TTS ${res.status}: ${(await res.text()).slice(0, 200)}`)
+  if (!res.ok) throw new Error(`ElevenLabs TTS ${res.status}: ${mask(await res.text())}`)
   const body = await res.json()
   const al = body.alignment || body.normalized_alignment
   const out = {
@@ -44,7 +46,7 @@ async function transcribe({ key, audio, mime }) {
   form.append('language_code', 'kor')
   form.append('file', new Blob([audio], { type: mime || 'audio/webm' }), 'question.webm')
   const res = await fetch(`${API}/speech-to-text`, { method: 'POST', headers: { 'xi-api-key': key }, body: form })
-  if (!res.ok) throw new Error(`ElevenLabs STT ${res.status}: ${(await res.text()).slice(0, 200)}`)
+  if (!res.ok) throw new Error(`ElevenLabs STT ${res.status}: ${mask(await res.text())}`)
   return ((await res.json()).text || '').trim()
 }
 
