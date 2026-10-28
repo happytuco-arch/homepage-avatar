@@ -2,13 +2,13 @@
 // 창을 옮기는 동안 아바타는 그 방향으로 걷고, 도착하면 게시글 쪽으로 팔을 뻗어 짚습니다.
 const { ipcMain } = require('electron')
 
-const AV_W = 280 // 아바타 층 크기(그림 안에서 인물은 가운데에 서 있음)
-const AV_H = 300
+const AV_W = 300 // 아바타 층 크기. 옆으로 뻗은 팔과 머리 위로 든 팔이 들어가는 크기(인물은 가운데)
+const AV_H = 360
 const WALK_SPEED = 520 // 화면 위를 걷는 속도(px/초)
 const MIN_WALK_MS = 350
 const FRAME_MS = 16
 const NAV_H = 72 // 사이트 위쪽 메뉴 띠 높이. 아바타는 이 아래로만 다닙니다
-const SHOULDER = 0.33 // 아바타 층 위에서부터 어깨(팔 뻗는 높이)까지의 비율
+const SHOULDER = 0.37 // 아바타 층 위에서부터 어깨(팔 뻗는 높이)까지의 비율
 const HOME_MARGIN = 10
 
 function createStage(win, view) {

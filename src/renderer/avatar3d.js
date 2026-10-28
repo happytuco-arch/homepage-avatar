@@ -9,6 +9,8 @@ const WALK_START_X = 2.6
 const BOW_ANGLE = Math.PI / 2 // 90도 인사
 const BOW_SECONDS = 1.1
 const BOW_HOLD_SECONDS = 1.2
+const CAMERA_FOV = 31
+const CAMERA_Y = 1.2 // 발끝(0)부터 든 팔 끝(약 2.4)까지의 가운데
 const POINT_TURN = 0.45 // 짚을 때 몸을 트는 각도
 const POINT_ARM_SIDE = Math.PI / 2 // 옆으로 팔을 수평으로 뻗기
 const POINT_ARM_UP = 2.6 // 위(메뉴)를 가리키기
@@ -100,9 +102,10 @@ export async function createAvatar(canvas) {
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
   renderer.setClearColor(0x000000, 0)
   const scene = new THREE.Scene()
-  const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 50)
-  camera.position.set(0, 1.05, 4.6)
-  camera.lookAt(0, 0.92, 0)
+  // 머리 위로 팔을 든 모습(메뉴 가리키기)까지 잘리지 않게 위쪽 여유를 두고 잡습니다
+  const camera = new THREE.PerspectiveCamera(CAMERA_FOV, 1, 0.1, 50)
+  camera.position.set(0, CAMERA_Y, 4.6)
+  camera.lookAt(0, CAMERA_Y, 0)
   scene.add(new THREE.HemisphereLight(0xffffff, 0x445566, 1.6))
   const sun = new THREE.DirectionalLight(0xffffff, 1.6)
   sun.position.set(1.5, 3, 4)
